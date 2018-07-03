@@ -6,104 +6,242 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
+    return MaterialApp(
+      title: 'Flutter feature discovery',
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  @override
+  Widget build(BuildContext context) {
+    return OverlayBuilder(
+      showOverlay: false,
+      overlayBuilder: (BuildContext context) {
+        return new CenterAbout(
+          position: Offset(200.0, 500.0),
+          child: Container(
+            width: 50.0,
+            height: 50.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.purple,
+            ),
+          ),
+        );
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.green,
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              // TODO:
+            },
+          ),
+          title: Text(''),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                // TODO:
+              },
+            ),
+          ],
+        ),
+        body: Content(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.add),
+        ),
+      ),
+    );
+  }
+}
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+class Content extends StatefulWidget {
+  @override
+  _ContentState createState() => _ContentState();
+}
+
+class _ContentState extends State<Content> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Column(
+          children: <Widget>[
+            Image.network(
+              'https://img.nh-hotels.net/nh_palermo-115-hotel_facilities.jpg?crop=5600:2257;0,610&resize=2000:805&output-quality=70&resize=870:*&composite-to=center,center|870:350&background-color=white',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 200.0,
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              color: Colors.blue,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      'Starbuck Hotel',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24.0,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Hotel Best',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              child: RaisedButton(
+                onPressed: () {
+                  // TODO: do feature discovery
+                },
+                child: Text('Do Feature Discovery'),
+              ),
+            )
+          ],
+        ),
+        Positioned(
+          top: 200.0,
+          right: 0.0,
+          child: FractionalTranslation(
+            translation: const Offset(-0.5, -0.5),
+            child: FloatingActionButton(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.blue,
+              onPressed: () {
+                // TODO:
+              },
+              child: Icon(Icons.drive_eta),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OverlayBuilder extends StatefulWidget {
+  final bool showOverlay;
+  final Function(BuildContext) overlayBuilder;
+  final Widget child;
+
+  OverlayBuilder({
+    this.showOverlay = false,
+    this.overlayBuilder,
+    this.child,
+  });
+
+  @override
+  _OverlayBuilderState createState() => _OverlayBuilderState();
+}
+
+class _OverlayBuilderState extends State<OverlayBuilder> {
+  OverlayEntry overlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showOverlay) {
+      showOverlay();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncWidgetAndOverlay();
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    syncWidgetAndOverlay();
+  }
+
+  @override
+  void dispose() {
+    if (!isShowingOverlay()) {
+      hideOverlay();
+    }
+    super.dispose();
+  }
+
+  bool isShowingOverlay() => overlayEntry != null;
+
+  void showOverlay() {
+    overlayEntry = OverlayEntry(
+      builder: (widget.overlayBuilder),
+    );
+    addToOverlay(overlayEntry);
+  }
+
+  void addToOverlay(OverlayEntry overlayEntry) async {
+    Overlay.of(context).insert(overlayEntry);
+  }
+
+  void hideOverlay() {
+    overlayEntry.remove();
+    overlayEntry = null;
+  }
+
+  void syncWidgetAndOverlay() {
+    if(!isShowingOverlay() && !widget.showOverlay) {
+      hideOverlay();
+    } else if(!isShowingOverlay() && widget.showOverlay){
+      showOverlay();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return new Scaffold(
-      appBar: new AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: new Text(widget.title),
+    return widget.child;
+  }
+}
+
+class CenterAbout extends StatelessWidget {
+  CenterAbout({
+    Key key,
+    this.position,
+    this.child,
+  }) : super(key: key);
+
+  final Offset position;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: position.dy,
+      left: position.dx,
+      child: FractionalTranslation(
+        translation: const Offset(-0.5, -0.5),
+        child: child,
       ),
-      body: new Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: new Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug paint" (press "p" in the console where you ran
-          // "flutter run", or select "Toggle Debug Paint" from the Flutter tool
-          // window in IntelliJ) to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              'You have pushed the button this many times:',
-            ),
-            new Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: new Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
